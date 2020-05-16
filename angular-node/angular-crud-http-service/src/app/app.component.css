@@ -1,0 +1,10 @@
+/* remove the dot on ul */
+ul {
+  list-style-type: none;
+}
+
+/* make li next to each other */
+li {
+  float: left;
+  padding: 0px 20px 0px;
+}

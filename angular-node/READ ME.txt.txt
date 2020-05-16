@@ -1,0 +1,11 @@
+to start the demo :
+
+open the node backend on visual studio code & run on terminal by typing :
+	node server
+
+open the angular app on visual studio code & run on terminal by typing
+	npm start
+
+open web browser then type default angular url
+	localhost:4200
+

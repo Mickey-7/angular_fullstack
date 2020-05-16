@@ -1,0 +1,515 @@
+reference : https://bezkoder.com/angular-crud-app/
+
+---------------------------------------------------------------------------------------------
+
+generate components and service
+    npx ng g c components/add-tutorial --skipTests -is -it
+    npx ng g c components/tutorial-list --skipTests -is -it
+    npx ng g c components/tutorial-details --skipTests -is -it
+    npx ng g s service/tutorial --skipTests
+
+---------------------------------------------------------------------------------------------
+
+Let me explain it briefly.
+
+    – There are 3 components: tutorials-list, tutorial-details, add-tutorial.
+    – tutorial.service has methods for sending HTTP requests to the Apis.
+    – app-routing.module.ts defines routes for each component.
+    – app component contains router view and navigation bar.
+    – app.module.ts declares Angular components and import necessary modules.
+
+---------------------------------------------------------------------------------------------
+
+Set up App Module
+    Open app.module.ts and import FormsModule, HttpClientModule:
+    
+    ...
+    import { FormsModule } from '@angular/forms';
+    import { HttpClientModule } from '@angular/common/http';
+
+    @NgModule({
+    declarations: [ ... ],
+    imports: [
+        ...
+        FormsModule,
+        HttpClientModule
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+    })
+    export class AppModule { }
+
+---------------------------------------------------------------------------------------------
+
+Define Routes for Angular AppRoutingModule
+    There are 3 main routes:
+    – /tutorials for tutorials-list component
+    – /tutorials/:id for tutorial-details component
+    – /add for add-tutorial component
+
+    app-routing.module.ts
+
+    import { NgModule } from '@angular/core';
+    import { Routes, RouterModule } from '@angular/router';
+    import { TutorialsListComponent } from './components/tutorials-list/tutorials-list.component';
+    import { TutorialDetailsComponent } from './components/tutorial-details/tutorial-details.component';
+    import { AddTutorialComponent } from './components/add-tutorial/add-tutorial.component';
+
+    const routes: Routes = [
+    { path: '', redirectTo: 'tutorials', pathMatch: 'full' },
+    { path: 'tutorials', component: TutorialsListComponent },
+    { path: 'tutorials/:id', component: TutorialDetailsComponent },
+    { path: 'add', component: AddTutorialComponent }
+    ];
+
+    @NgModule({
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
+    })
+    export class AppRoutingModule { }
+    
+---------------------------------------------------------------------------------------------
+
+Add Navbar and Router View to Angular CRUD App
+    Let’s open src/app.component.html, this App component is the root container for our application, it will contain a nav element.
+
+    <ul>
+    <li>
+        <a [routerLink]="['/tutorials']" routerLinkActive="router-link-active">
+        Tutorials
+        </a>
+    </li>
+    <li>
+        <a [routerLink]="['/add']" routerLinkActive="router-link-active">
+        Add
+        </a>
+    </li>
+    </ul>
+    <br />
+    <router-outlet></router-outlet>
+
+    app.component.css
+
+    /* remove the dot on ul */
+    ul {
+        list-style-type: none;
+    }
+
+    /* make li next to each other */
+    li {
+        float: left;
+        padding: 0px 20px 0px;
+    }
+
+---------------------------------------------------------------------------------------------
+
+Create Data Service
+    This service will use Angular HTTPClient to send HTTP requests.
+    You can see that its functions includes CRUD operations and finder method.
+
+    services/tutorial.service.ts
+
+    import { Injectable } from '@angular/core';
+    import { HttpClient } from '@angular/common/http';
+
+    @Injectable({
+        providedIn: 'root'
+    })
+    export class TutorialService {
+
+        // invoke HttpClient
+        constructor(private http : HttpClient) { }
+
+        // define the url from node backend
+        baseURL = "http://localhost:8080/api/tutorials"
+
+        // create method and invoke http with baseURL inside
+        getAll(){
+            return this.http.get(this.baseURL);
+        }
+
+        get(id){
+            return this.http.get(`${this.baseURL}/${id}`);
+        }
+
+        create(data){
+            return this.http.post(this.baseURL, data);
+        }
+
+        update(id, data){
+            return this.http.put(`${this.baseURL}/${id}`, data);
+        }
+
+        delete(id){
+            return this.http.delete(`${this.baseURL}/${id}`);
+        }
+
+        deleteAll(){
+            return this.http.delete(this.baseURL);
+        }
+
+        findByTitle(title){
+            return this.http.get(`${this.baseURL}?=${title}`);
+        }
+
+    }
+
+---------------------------------------------------------------------------------------------
+
+Create Angular Components
+    As you’ve known before, there are 3 components corresponding to 3 routes defined in AppRoutingModule.
+
+---------------------------------------------------------------------------------------------
+
+Add new Item Component
+    This component has a Form to submit new Tutorial with 2 fields: title & description. It calls TutorialService.create() method.
+
+    components/add-tutorial/add-tutorial.component.ts
+
+    import { Component, OnInit } from "@angular/core";
+    import { TutorialService } from "src/app/service/tutorial.service";
+
+    @Component({
+      selector: "app-add-tutorial",
+      template: `
+        <div>
+          <form>
+            <label>Title</label>
+            <!-- snippet a-ngM -->
+            <input [(ngModel)]="tutorial.title" type="text" />
+            <br />
+            <label>Description</label>
+            <input [(ngModel)]="tutorial.description" type="text" />
+            <button (click)="saveTutorial()">Submit</button>
+          </form>
+
+          <!-- snippet : a-ngI -->
+          <div *ngIf="submitted">
+            <h3>Added Successfully!</h3>
+            <button (click)="newTutorial()">Add</button>
+          </div>
+        </div>
+      `,
+      styles: [],
+    })
+
+    export class AddTutorialComponent implements OnInit {
+      // invoke service
+      constructor(private tutorialService: TutorialService) {}
+    
+      ngOnInit(): void {}
+    
+      // create tutorial object which will like between html and ts file
+      tutorial = {
+        title: "",
+        description: "",
+        published: false,
+      };
+      // boolean type var for toggling/adding new tutorial again
+      // and also for showing feedback/notification message
+      submitted = false;
+    
+      // create save method and invoke service
+      saveTutorial() {
+        // storing the input data to single ata object
+        const data = {
+          title: this.tutorial.title,
+          description: this.tutorial.description,
+        };
+    
+        // invoking service the subscribe and catch if error
+        this.tutorialService.create(data).subscribe(
+          (response) => {
+            console.log(response);
+            // invoke submitted var to display notif message
+            this.submitted = true;
+          },
+          // cathcing error
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+    
+        // method for new tutorial addition
+        newTutorial() {
+            //invoke submitted var to false to remove notif message
+            this.submitted = false;
+            // lear input fields
+            this.tutorial = {
+            title: "",
+            description: "",
+            published: false,
+            };
+        }
+    }
+
+---------------------------------------------------------------------------------------------
+
+List of items Component
+    This component calls 3 TutorialService methods:
+
+    getAll()
+    deleteAll()
+    findByTitle()
+    components/tutorials-list/tutorials-list.component.ts
+
+    import { Component, OnInit } from "@angular/core";
+    import { TutorialService } from "src/app/service/tutorial.service";
+
+    @Component({
+      selector: "app-tutorial-list",
+      template: `
+        <!-- for search  -->
+        <!-- snippet : a-ngM -->
+        <input [(ngModel)]="title" type="text" />
+        <button (click)="searchTitle()">Search</button>
+
+        <!-- display tutorials -->
+        <h3>Tutorial List</h3>
+        <ol>
+          <!-- snippet : a-ngF -->
+          <!-- invoke the setActiveTutorial method on ts here and pass the tutoraial data-->
+          <li
+            *ngFor="let tutorial of tutorials; let i = index"
+            (click)="setActiveTutorial(tutorial, i)"
+          >
+            {{ tutorial.title }}
+          </li>
+        </ol>
+
+        <!-- remove all button -->
+        <button (click)="removeAll()">Remove All</button>
+
+        <!-- for displayiong the selected tutorail -->
+        <!-- snippet : a-ngI -->
+        <div *ngIf="currentTutorial">
+          <h3>Selected Tutorial</h3>
+          <label>Title : </label>
+          {{ currentTutorial.title }}
+
+          <label>Description : </label>
+          {{ currentTutorial.description }}
+
+          <label>Status : </label>
+          {{ currentTutorial.published ? "Published" : "Pending" }}
+
+          <!-- link for edit -->
+          <a
+            [routerLink]="['/tutorials/{{ currentTutorial.id }}']"
+            routerLinkActive="router-link-active"
+            >Edit</a
+          >
+        </div>
+
+        <!-- will render if no tutorial was selected -->
+        <div *ngIf="!currentTutorial">
+          <p>Please clucick in tutorial to select</p>
+        </div>
+      `,
+      styles: [],
+    })
+    export class TutorialListComponent implements OnInit {
+      // invoke service
+      constructor(private tutorialService: TutorialService) {}
+
+      ngOnInit(): void {
+        //invoke the retireve aemthod to displat all tutorail right from the start
+        this.retrieveTutorials();
+      }
+
+      //create tutorials var for storage and link between html & ts file
+      tutorials: any;
+
+      // create method and invoke service then subscribe and catch error
+      retrieveTutorials() {
+        this.tutorialService.getAll().subscribe(
+          (response) => {
+            console.log(response);
+            //set the response to the tutorials data to be displayed
+            this.tutorials = response;
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+
+      //create title var with empty string for storge and link bet. html serachbox and ts
+      title: "";
+
+      // create serach method and invoke service then subscribe and catch error
+      searchTitle() {
+        this.tutorialService.findByTitle(this.title).subscribe(
+          (response) => {
+            console.log(response);
+            //set the tutorials to be displayed on the filtered by title response data
+            this.tutorials = response;
+          },
+          //catch error
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+
+      //method for remova all
+      removeAll() {
+        this.tutorialService.deleteAll().subscribe(
+          (response) => {
+            console.log(response);
+            //call the get all method after delete
+            this.retrieveTutorials();
+          },
+          // catch error
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+
+      // create var for selected tutorial
+      currentTutorial = null;
+      currentIndex = -1;
+
+      // for selected tutorial
+      setActiveTutorial(tutorial, index) {
+        this.currentTutorial = tutorial;
+        this.currentIndex = index;
+      }
+    }
+
+    If you click on Edit button of any Tutorial, You will be directed to Tutorial page with url: /tutorials/:id.
+
+---------------------------------------------------------------------------------------------
+
+Item details Component
+    For getting data & update, delete the Tutorial, this component will use 3 TutorialService methods:
+
+    get()
+    update()
+    delete()
+    
+    components/tutorial-details/tutorial-details.component.ts
+
+    import { Component, OnInit } from "@angular/core";
+    import { TutorialService } from "src/app/service/tutorial.service";
+    import { ActivatedRoute, Router } from "@angular/router";
+
+    @Component({
+      selector: "app-tutorial-details",
+      template: `
+        <!-- sbnippet : a-ngI -->
+        <div *ngIf="currentTutorial">
+          <label>Title :</label>
+          <input [(ngModel)]="currentTutorial.title" type="text" />
+
+          <label>Description :</label>
+          <input [(ngModel)]="currentTutorial.description" type="text" />
+
+          <label>Status :</label>
+          {{ currentTutorial.published ? "Published" : "Pending" }}
+
+          <!-- for delte -->
+          <button (click)="delete()">Delete</button>
+
+          <!-- for update -->
+          <button (click)="updateTutorial()">Update</button>
+          <p>{{ message }}</p>
+        </div>
+
+        <!-- if no selected currentTutorial -->
+        <div *ngIf="!currentTutorial">
+          <p>No Tutorial was currently selected</p>
+        </div>
+      `,
+      styles: [],
+    })
+    export class TutorialDetailsComponent implements OnInit {
+      //invoke service & ActivatedRoute to get the id param which was passed
+      //when the edit button was click on tutorial-list component
+      //also the Router to navigate to list after delete
+      constructor(
+        private tutorialService: TutorialService,
+        private route: ActivatedRoute,
+        private router: Router
+      ) {}
+
+      ngOnInit(): void {
+        //invoke the get tutorial with the selected id using ActivatedRoute
+        this.getTutorial(this.route.snapshot.paramMap.get("id"));
+        //id was from the url param
+      }
+
+      //currentTutorial var for storage and link bet. html and ts
+      currentTutorial = null;
+
+      // create the get tutorial method invoking service and catch error
+      getTutorial(id) {
+        this.tutorialService.get(id).subscribe(
+          (response) => {
+            console.log(response);
+            //set the response data to the currentTutorial to be displayed
+            this.currentTutorial = response;
+          },
+          //catch error
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+
+      //message for update notif
+      message = "";
+
+      //update method and invoke service then subscribe and catch error
+      updateTutorial() {
+        this.tutorialService
+          .update(this.currentTutorial.id, this.currentTutorial)
+          .subscribe(
+            (response) => {
+              console.log(response);
+              //notif message
+              this.message = "Tutorial was udpated";
+            },
+            //catch error
+            (error) => {
+              console.log(error);
+            }
+          );
+      }
+
+      //delete method and invoke service then subsscribe thrn catch error
+      //also after delte, wi will redirect it to tutorial-list component
+      delete() {
+        this.tutorialService.delete(this.currentTutorial.id).subscribe(
+          (response) => {
+            console.log(response);
+            // redirect to /tutorials after delete
+            this.router.navigate(["/tutorials"]);
+          },
+          //catch error
+          (error) => {
+            console.log(error);
+          }
+        );
+      }
+    }
+
+---------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
