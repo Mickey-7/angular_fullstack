@@ -1,0 +1,69 @@
+create spring boot project with demo as Artifact & with Spring Web dependency @ https://start.spring.io/
+
+
+open the demo project on intellij & go to src folder on terminal
+    cd src
+
+
+on terminal under src directory create angular app with project name client
+    npx @angular/cli new client
+
+    C:\Users\donat\Documents\todo\angular-spring-boot-integration-no-cors-needed\demo\src>npx @angular/cli new client
+    Your global Angular CLI version (9.1.6) is greater than your local
+    version (9.0.4). The local Angular CLI version is used.
+
+    To disable this warning use "ng config -g cli.warnings.versionMismatch false".
+    ? Would you like to add Angular routing? Yes
+    ? Which stylesheet format would you like to use? CSS
+    CREATE client/angular.json (3567 bytes)
+    CREATE client/package.json (1283 bytes)
+    CREATE client/README.md (1023 bytes)
+    CREATE client/tsconfig.json (543 bytes)
+    CREATE client/tslint.json (1953 bytes)
+    CREATE client/.editorconfig (246 bytes)
+    CREATE client/.gitignore (631 bytes)
+    CREATE client/browserslist (429 bytes)
+    CREATE client/karma.conf.js (1018 bytes)
+    CREATE client/tsconfig.app.json (210 bytes)
+    CREATE client/tsconfig.spec.json (270 bytes)
+    CREATE client/src/favicon.ico (948 bytes)
+    CREATE client/src/index.html (292 bytes)
+    CREATE client/src/main.ts (372 bytes)
+    CREATE client/src/polyfills.ts (2835 bytes)
+    CREATE client/src/styles.css (80 bytes)
+    CREATE client/src/test.ts (753 bytes)
+    CREATE client/src/assets/.gitkeep (0 bytes)
+    CREATE client/src/environments/environment.prod.ts (51 bytes)
+    CREATE client/src/environments/environment.ts (662 bytes)
+    CREATE client/src/app/app-routing.module.ts (246 bytes)
+    CREATE client/src/app/app.module.ts (393 bytes)
+    CREATE client/src/app/app.component.html (25755 bytes)
+    CREATE client/src/app/app.component.spec.ts (1059 bytes)
+    CREATE client/src/app/app.component.ts (210 bytes)
+    CREATE client/src/app/app.component.css (0 bytes)
+    CREATE client/e2e/protractor.conf.js (808 bytes)
+    CREATE client/e2e/tsconfig.json (214 bytes)
+    CREATE client/e2e/src/app.e2e-spec.ts (639 bytes)
+    CREATE client/e2e/src/app.po.ts (301 bytes)
+    √ Packages installed successfully.
+        Directory is already under version control. Skipping initialization of git.
+
+    C:\Users\donat\Documents\todo\angular-spring-boot-integration-no-cors-needed\demo\src>
+
+
+go to the client and open the angular.json file
+    change the default from "outputPath":"dist/client" to "outputPath":"../main/resources/static"
+        the output path was from the src (root folder) going to resources of the main (java)
+
+
+go to client directory on terminal by typing
+     cd client
+        then
+            npx ng build
+                (for every changes on angular you should build it first for it to update)
+                    notice that the empty static folder on java under resources will now contain shits & stuffs
+
+
+run the demo project & open web browser and type localhost:8080 (default url of spring boot)
+    angular homepage should appear
+        default url of angular is localhost:4200
