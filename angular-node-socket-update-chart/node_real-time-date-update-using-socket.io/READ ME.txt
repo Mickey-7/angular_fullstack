@@ -1,0 +1,159 @@
+reference : https://github.com/funOfheuristic/dashboard-be/blob/master/package.json
+
+-----------------------------------------------------------------------------------------------------------
+
+-> npm init
+    C:\Users\donat\Documents\node_real-time-date-update-using-socket.io>npm init
+    This utility will walk you through creating a package.json file.
+    It only covers the most common items, and tries to guess sensible defaults.
+
+    See `npm help json` for definitive documentation on these fields
+    and exactly what they do.
+
+    Use `npm install <pkg>` afterwards to install a package and
+    save it as a dependency in the package.json file.
+
+    Press ^C at any time to quit.
+    package name: (node_real-time-date-update-using-socket.io)
+    version: (1.0.0)
+    description: real time data update
+    entry point: (index.js)
+    test command:
+    git repository:
+    keywords:
+    author: me
+    license: (ISC)
+    About to write to C:\Users\donat\Documents\node_real-time-date-update-using-socket.io\package.json:
+
+    {
+    "name": "node_real-time-date-update-using-socket.io",
+    "version": "1.0.0",
+    "description": "real time data update",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "me",
+    "license": "ISC"
+    }
+
+
+    Is this OK? (yes)
+
+-----------------------------------------------------------------------------------------------------------
+
+-> npm i cors
+    C:\Users\donat\Documents\node_real-time-date-update-using-socket.io>npm i cors
+    npm notice created a lockfile as package-lock.json. You should commit this file.
+    npm WARN node_real-time-date-update-using-socket.io@1.0.0 No repository field.
+
+    + cors@2.8.5
+    added 3 packages from 3 contributors and audited 3 packages in 1.144s
+    found 0 vulnerabilities
+
+-----------------------------------------------------------------------------------------------------------
+
+-> npm i body-parser
+    C:\Users\donat\Documents\node_real-time-date-update-using-socket.io>npm i body-parser
+    npm WARN node_real-time-date-update-using-socket.io@1.0.0 No repository field.
+
+    + body-parser@1.19.0
+    added 22 packages from 17 contributors and audited 25 packages in 1.448s
+    found 0 vulnerabilities
+
+-----------------------------------------------------------------------------------------------------------
+
+-> npm i express
+    C:\Users\donat\Documents\node_real-time-date-update-using-socket.io>npm i express
+    npm WARN node_real-time-date-update-using-socket.io@1.0.0 No repository field.
+
+    + express@4.17.1
+    added 27 packages from 25 contributors and audited 52 packages in 1.006s
+    found 0 vulnerabilities
+
+-----------------------------------------------------------------------------------------------------------
+
+-> npm i socket.io
+    C:\Users\donat\Documents\node_real-time-date-update-using-socket.io>npm i socket.io
+    npm WARN ws@7.3.0 requires a peer of bufferutil@^4.0.1 but none is installed. You must install peer dependencies yourself.        
+    npm WARN ws@7.3.0 requires a peer of utf-8-validate@^5.0.2 but none is installed. You must install peer dependencies yourself.    
+    npm WARN node_real-time-date-update-using-socket.io@1.0.0 No repository field.
+
+    + socket.io@2.3.0
+    added 46 packages from 28 contributors and audited 98 packages in 1.783s
+    found 0 vulnerabilities
+
+-----------------------------------------------------------------------------------------------------------
+
+create index.js,
+    // invoke all the installed modules
+    const express = require("express");
+    const cors = require("cors");
+    const bodyParser = require("body-parser");
+    const socket = require("socket.io");
+
+    // create express app
+    const app = express();
+    // invoke cors & bodyParser on app
+    app.use(cors({ origni: "*" }));
+    app.use(bodyParser);
+
+    // set port of the app
+    const server = app.listen(3000, () => {
+    console.log("Started in port : 3000");
+    });
+
+    // invoke the server on socket
+    const io = socket(server);
+
+    // create boolean variable x
+    let x = true;
+    // create sendData(socket) function
+    // invoke socket as input parameter
+    // snippet : func
+    function sendData(socket) {
+    // invoke the x variable
+        if (x) {
+        // i wrote the arrow function code as :
+        // () => {
+        //   Math.floor(Math.random() * 590) + 10
+        // }
+        // and nothing is updating on the web browser
+        // arrow function must be without {} when used in Array.from()
+        // THIS FUCKING SHIT TOOK A WHOLE DAY!!!!!!!
+        // invoke socket
+        socket.emit(
+        "data1",
+        Array.from({ length: 8 }, () => Math.floor(Math.random() * 590) + 10)
+        );
+        x = !x;
+    } else {
+        // invoke socket
+        socket.emit(
+        "data2",
+        Array.from({ length: 8 }, () => Math.floor(Math.random() * 590) + 10)
+        );
+        console.log(Math.floor(Math.random() * 590) + 10);
+        x = !x;
+    }
+    console.log(`data is ${x}`);
+    // snippet : sett
+    setTimeout(() => {
+        //   invoke sendData(socket)
+        sendData(socket);
+    }, 3000);
+    }
+
+    // turn on socket connection
+    io.sockets.on("connection", (socket) => {
+    console.log(`new connection id : ${socket.id}`);
+    // invoke the sendDate(socket) function above
+    sendData(socket);
+    });
+
+
+-----------------------------------------------------------------------------------------------------------
+
+run node by typing on terminal :
+
+    node index
