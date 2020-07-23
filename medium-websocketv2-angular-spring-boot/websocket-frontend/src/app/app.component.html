@@ -1,0 +1,8 @@
+<h3>FUCK</h3>
+<input type="text" placeholder="message" [(ngModel)]="input" />
+<button (click)="sendMessage()">Send</button>
+<div>
+  <div *ngFor="let msg of messageService.msg">
+    {{ msg }}
+  </div>
+</div>

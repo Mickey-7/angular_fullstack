@@ -1,0 +1,101 @@
+reference : https://medium.com/@haseeamarathunga/create-a-spring-boot-angular-websocket-using-sockjs-and-stomp-cb339f766a98
+
+---------------------------------------------------------------------------------------------------------------------------
+
+dependencies : Spring Boot DevTools, Spring Web Services & WebSocket
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Did you know:
+    If the spring boot project has no Spring Web as dependency,
+    there is not static & templates folder created under resources folder directory
+
+---------------------------------------------------------------------------------------------------------------------------
+
+First I configured that dependency with creating WebSocketConfig class in my config package as below.
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+
+        //alt+insert
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/socket")
+                    .setAllowedOrigins("*")
+                    .withSockJS();
+        }
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry registry) {
+            registry.setApplicationDestinationPrefixes("/app")
+                    .enableSimpleBroker("/message");
+        }
+    }
+
+    In here @Configuration annotation is required to any class that if it is configuration class.
+    This class extends the class AbstractWebSocketMessageBrokerConfigurer.
+    So we can @Override any method of that class.
+    So I added a SockJS endpoint called /socket that can access any host.
+    And also I configured the message broker with named ‘message’ can uniquely access with that name.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Then I created a controller called WebSocketController to access that message broker with Simple Messaging Template as below .
+
+    @Controller
+    public class WebSocketController {
+        private final SimpMessagingTemplate simpMessagingTemplate;
+
+        //underline will appear on SimpMessagingTemplate above
+        //just hover then select Add constructor parameter
+        @Autowired
+        public WebSocketController(SimpMessagingTemplate simpMessagingTemplate) {
+            this.simpMessagingTemplate = simpMessagingTemplate;
+        }
+
+        @MessageMapping("/send/message")
+        public void sendMessage(String message){
+            System.out.println(message);
+            this.simpMessagingTemplate.convertAndSend("/message", message);
+        }
+    }
+
+    From that Simple Messaging Template I used convertAndSend() method
+    to asynchronous data communication with that message broker.
+    If there is any data comes to that message broker it will automatically send
+    that data using above configured endpoint called /socket with SockJS and Stomp.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Finally, I change the tomcat port as 8081 in application.properties file.
+
+        server.port = 8081
+
+    Now I will run the back-end using tomcat in port 8081.
+    Then I will check that endpoint in my web browser or testing tool as below.
+
+    Postman: -> note that /socket is the addEndpoint("/socket") on configuration
+
+    GET     http://localhost:8081/socket        SEND
+
+    output:
+
+    Welcome to SockJS!
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
