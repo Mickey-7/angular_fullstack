@@ -1,0 +1,26 @@
+<noscript
+  ><h2 style="color: #ff0000;">
+    Seems your browser doesn't support Javascript! Websocket relies on
+    Javascript being enabled. Please enable Javascript and reload this page!
+  </h2>
+</noscript>
+
+<div>
+  {{ greeting }}
+</div>
+
+<div>
+  <form>
+    <label> WebSocket connection: </label>
+    <button (click)="connect()">Connect</button>
+    <button (click)="disconnect()">Disconnect</button>
+  </form>
+  <!-- ------------------------------ -->
+  <form>
+    <label>What is your name? </label>
+    <input type="text" [(ngModel)]="name" name="name" />
+    <button (click)="sendMessage()">Submit</button>
+  </form>
+  <!-- ------------------------------ -->
+  <p>{{ greeting }}</p>
+</div>

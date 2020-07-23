@@ -1,0 +1,491 @@
+reference :  https://www.javaguides.net/2019/06/spring-boot-angular-8-websocket-example-tutorial.html
+
+-----------------------------------------------------------------------------------------------------
+
+1. Install the latest version of Angular CLI
+
+    To install or update Angular 7 CLI, type this command in the Terminal or Node Command Line.
+
+        npm install -g @angular/cli
+
+    Angular version,
+
+    C:\Users\donat>npx ng --version
+
+        _                      _                 ____ _     ___
+        / \   _ __   __ _ _   _| | __ _ _ __     / ___| |   |_ _|
+    / △ \ | '_ \ / _` | | | | |/ _` | '__|   | |   | |    | |
+    / ___ \| | | | (_| | |_| | | (_| | |      | |___| |___ | |
+    /_/   \_\_| |_|\__, |\__,_|_|\__,_|_|       \____|_____|___|
+                    |___/
+
+
+    Angular CLI: 9.0.4
+    Node: 12.13.0
+    OS: win32 x64
+
+    Angular: undefined
+    ...
+    Ivy Workspace: <error>
+
+    Package                      Version
+    ------------------------------------------------------
+    @angular-devkit/architect    0.900.4
+    @angular-devkit/core         9.0.4
+    @angular-devkit/schematics   9.0.4
+    @angular/cli                 9.0.4
+    @schematics/angular          9.0.4
+    @schematics/update           0.900.4
+    rxjs                         6.5.3
+
+
+    C:\Users\donat>
+
+-----------------------------------------------------------------------------------------------------
+
+2. Create Angular 8 client application using Angular CLI
+    The Angular CLI is a command-line interface tool that you use to 
+    initialize, develop, scaffold, and maintain Angular applications.
+    
+    If you are new to Angular CLI then check out official documentation at https://cli.angular.io.
+
+    Let's use below command to generate an Angular 8 Client application. 
+    We name this project as "angular8-springboot-websocket".
+
+        ng new angular8-springboot-websocket
+
+    Inside the project we have to install tree libraries with commands:
+
+    npm install stompjs;
+
+        C:\Users\donat\Downloads\websocket-angular>npm i stompjs
+
+        > websocket@1.0.31 install C:\Users\donat\Downloads\websocket-angular\node_modules\websocket
+        > (node-gyp rebuild 2> builderror.log) || (exit 0)
+
+
+        C:\Users\donat\Downloads\websocket-angular\node_modules\websocket>if not defined npm_config_node_gyp (node "C:\Program Files\nodejs\node_modules\npm\node_modules\npm-lifecycle\node-gyp-bin\\..\..\node_modules\node-gyp\bin\node-gyp.js" rebuild )  else (node "C:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\bin\node-gyp.js" rebuild ) 
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.1.3 (node_modules\fsevents):
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.1.3: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\watchpack-chokidar2\node_modules\fsevents):     
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\webpack-dev-server\node_modules\fsevents):      
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
+        + stompjs@2.3.3
+        added 15 packages from 16 contributors and audited 1362 packages in 12.717s
+        found 3 low severity vulnerabilities
+        run `npm audit fix` to fix them, or `npm audit` for details
+       
+    npm install sockjs-client
+
+        C:\Users\donat\Downloads\websocket-angular>npm i sockjs-client
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.1.3 (node_modules\fsevents):
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.1.3: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\watchpack-chokidar2\node_modules\fsevents):     
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\webpack-dev-server\node_modules\fsevents):      
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
+        + sockjs-client@1.4.0
+        updated 1 package and audited 1362 packages in 9.526s
+        found 3 low severity vulnerabilities
+        run `npm audit fix` to fix them, or `npm audit` for details
+
+    npm install jquery (just to quickly access the DOM elements)
+
+        C:\Users\donat\Downloads\websocket-angular>npm i jquery
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\watchpack-chokidar2\node_modules\fsevents):     
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.1.3 (node_modules\fsevents):
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.1.3: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+        npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\webpack-dev-server\node_modules\fsevents):      
+        npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
+        + jquery@3.5.1
+        added 1 package from 1 contributor and audited 1363 packages in 7.962s
+        found 3 low severity vulnerabilities
+        run `npm audit fix` to fix them, or `npm audit` for details
+
+-----------------------------------------------------------------------------------------------------
+
+3. package.json
+    This file configures npm package dependencies that are available to all projects in the workspace. 
+    Note that angular version 8.0.0 in dependencies section in below file.
+
+    {
+        "name": "websocket-angular",
+        "version": "0.0.0",
+        "scripts": {
+            "ng": "ng",
+            "start": "ng serve",
+            "build": "ng build",
+            "test": "ng test",
+            "lint": "ng lint",
+            "e2e": "ng e2e"
+        },
+        "private": true,
+        "dependencies": {
+            "@angular/animations": "~9.0.3",
+            "@angular/common": "~9.0.3",
+            "@angular/compiler": "~9.0.3",
+            "@angular/core": "~9.0.3",
+            "@angular/forms": "~9.0.3",
+            "@angular/platform-browser": "~9.0.3",
+            "@angular/platform-browser-dynamic": "~9.0.3",
+            "@angular/router": "~9.0.3",
+            "jquery": "^3.5.1",
+            "rxjs": "~6.5.4",
+            "sockjs-client": "^1.4.0",
+            "stompjs": "^2.3.3",
+            "tslib": "^1.10.0",
+            "zone.js": "~0.10.2"
+        },
+        "devDependencies": {
+            "@angular-devkit/build-angular": "~0.900.4",
+            "@angular/cli": "~9.0.4",
+            "@angular/compiler-cli": "~9.0.3",
+            "@angular/language-service": "~9.0.3",
+            "@types/node": "^12.11.1",
+            "@types/jasmine": "~3.5.0",
+            "@types/jasminewd2": "~2.0.3",
+            "codelyzer": "^5.1.2",
+            "jasmine-core": "~3.5.0",
+            "jasmine-spec-reporter": "~4.2.1",
+            "karma": "~4.3.0",
+            "karma-chrome-launcher": "~3.1.0",
+            "karma-coverage-istanbul-reporter": "~2.1.0",
+            "karma-jasmine": "~2.0.1",
+            "karma-jasmine-html-reporter": "^1.4.2",
+            "protractor": "~5.4.3",
+            "ts-node": "~8.3.0",
+            "tslint": "~5.18.0",
+            "typescript": "~3.7.5"
+        }
+    }
+
+-----------------------------------------------------------------------------------------------------
+
+4. WebSocket API
+    Let's create a WebSocketAPI typescript file and add the following code to it:
+
+        npx ng g s service/WebSocketAPI --skipTests
+
+        C:\Users\donat\Downloads\websocket-angular>npx ng g s service/WebSocketAPI --skipTests
+        CREATE src/app/service/web-socket-api.service.ts (141 bytes)
+
+-----------------------------------------------------------------------------------------------------
+
+5. app.component.ts -> AppComponent
+    Defines the logic for the app's root component, named AppComponent. 
+    The view associated with this root component becomes the root of 
+    the view hierarchy as you add components and services to your app.
+
+-----------------------------------------------------------------------------------------------------
+
+6. app.component.html
+    Defines the HTML template associated with the root AppComponent.
+
+    <noscript
+    ><h2 style="color: #ff0000;">
+        Seems your browser doesn't support Javascript! Websocket relies on
+        Javascript being enabled. Please enable Javascript and reload this page!
+    </h2>
+    </noscript>
+
+    <div>
+    {{ greeting }}
+    </div>
+
+    <div>
+    <form>
+        <label> WebSocket connection: </label>
+        <button (click)="connect()">Connect</button>
+        <button (click)="disconnect()">Disconnect</button>
+    </form>
+    <!-- ------------------------------ -->
+    <form>
+        <label>What is your name? </label>
+        <input type="text" [(ngModel)]="name" />
+        <button (click)="sendMessage()">Submit</button>
+    </form>
+    <!-- ------------------------------ -->
+    <p>{{ greeting }}</p>
+    </div>
+
+-----------------------------------------------------------------------------------------------------
+
+7. index.html
+    Here is code for index.html. Add the following code to index.html file:
+
+    <!doctype html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>WebsocketAngular</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script>
+        if (global === undefined) {
+        var global = window;
+        }
+    </script>
+    </head>
+    <body>
+    <app-root></app-root>
+    </body>
+    </html>
+
+-----------------------------------------------------------------------------------------------------
+
+8. app.module.ts
+    Defines the root module, named AppModule, that tells Angular how to assemble the application. 
+    Initially declares only the AppComponent. As you add more components to the app, they must be declared here.
+    We are using the HTML form to submit name so add the following code to AppModule:
+
+        import { BrowserModule } from "@angular/platform-browser";
+        import { NgModule } from "@angular/core";
+
+        import { AppRoutingModule } from "./app-routing.module";
+        import { AppComponent } from "./app.component";
+
+        // manually imported for ngModel
+        // snippet : import s
+        import { FormsModule } from "@angular/forms";
+
+        @NgModule({
+        declarations: [AppComponent],
+        imports: [BrowserModule, AppRoutingModule, FormsModule],
+        providers: [],
+        bootstrap: [AppComponent],
+        })
+        export class AppModule {}
+
+-----------------------------------------------------------------------------------------------------
+
+9. Running Angular 8 Client Application
+    Let's run the above developed Angular App with a command:
+    
+        npm start
+    
+    By default, the Angular app runs on 4200 port but you can change default port with the following command:
+
+        npx ng serve --port 4201
+
+-----------------------------------------------------------------------------------------------------
+
+error encountered: 
+
+    upon running for the first time: 
+
+    C:\Users\donat\Downloads\websocket-angular>npm start
+
+    > websocket-angular@0.0.0 start C:\Users\donat\Downloads\websocket-angular
+    > ng serve
+
+
+    chunk {main} main.js, main.js.map (main) 20.9 kB [initial] [rendered]
+    chunk {polyfills} polyfills.js, polyfills.js.map (polyfills) 141 kB [initial] [rendered]
+    chunk {runtime} runtime.js, runtime.js.map (runtime) 6.15 kB [entry] [rendered]
+    chunk {styles} styles.js, styles.js.map (styles) 9.72 kB [initial] [rendered]
+    chunk {vendor} vendor.js, vendor.js.map (vendor) 3.53 MB [initial] [rendered]
+    Date: 2020-07-23T09:25:48.934Z - Hash: 670477cf772f52140994 - Time: 7363ms
+
+    WARNING in Circular dependency detected:
+    src\app\app.component.ts -> src\app\service\web-socket-api.service.ts -> src\app\app.component.ts
+
+    WARNING in Circular dependency detected:
+    src\app\service\web-socket-api.service.ts -> src\app\app.component.ts -> src\app\service\web-socket-api.service.ts
+
+    ERROR in ./node_modules/stompjs/lib/stomp-node.js
+    Module not found: Error: Can't resolve 'net' in 'C:\Users\donat\Downloads\websocket-angular\node_modules\stompjs\lib'
+    ** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+    Error from chokidar (C:\): Error: EBUSY: resource busy or locked, lstat 'C:\hiberfil.sys'
+    Error from chokidar (C:\): Error: EBUSY: resource busy or locked, lstat 'C:\pagefile.sys'
+    Error from chokidar (C:\): Error: EBUSY: resource busy or locked, lstat 'C:\swapfile.sys'
+
+
+    solution:  
+    
+    https://stackoverflow.com/questions/54275069/module-not-found-error-cant-resolve-net-in-node-modules-stompjs-lib
+
+        npm i net
+
+    notice that the package.json is now updated compared from above
+
+    {
+        "name": "websocket-angular",
+        "version": "0.0.0",
+        "scripts": {
+            "ng": "ng",
+            "start": "ng serve",
+            "build": "ng build",
+            "test": "ng test",
+            "lint": "ng lint",
+            "e2e": "ng e2e"
+                },
+        "private": true,
+        "dependencies": {
+            "@angular/animations": "~9.0.3",
+            "@angular/common": "~9.0.3",
+            "@angular/compiler": "~9.0.3",
+            "@angular/core": "~9.0.3",
+            "@angular/forms": "~9.0.3",
+            "@angular/platform-browser": "~9.0.3",
+            "@angular/platform-browser-dynamic": "~9.0.3",
+            "@angular/router": "~9.0.3",
+            "jquery": "^3.5.1",
+            "net": "^1.0.2",
+            "rxjs": "~6.5.4",
+            "sockjs-client": "^1.4.0",
+            "stompjs": "^2.3.3",
+            "tslib": "^1.10.0",
+            "zone.js": "~0.10.2"
+        },
+        "devDependencies": {
+            "@angular-devkit/build-angular": "~0.900.4",
+            "@angular/cli": "~9.0.4",
+            "@angular/compiler-cli": "~9.0.3",
+            "@angular/language-service": "~9.0.3",
+            "@types/node": "^12.11.1",
+            "@types/jasmine": "~3.5.0",
+            "@types/jasminewd2": "~2.0.3",
+            "codelyzer": "^5.1.2",
+            "jasmine-core": "~3.5.0",
+            "jasmine-spec-reporter": "~4.2.1",
+            "karma": "~4.3.0",
+            "karma-chrome-launcher": "~3.1.0",
+            "karma-coverage-istanbul-reporter": "~2.1.0",
+            "karma-jasmine": "~2.0.1",
+            "karma-jasmine-html-reporter": "^1.4.2",
+            "protractor": "~5.4.3",
+            "ts-node": "~8.3.0",
+            "tslint": "~5.18.0",
+            "typescript": "~3.7.5"
+        }
+    }
+
+    no more error:
+
+    > websocket-angular@0.0.0 start C:\Users\donat\Downloads\websocket-angular
+    > ng serve
+
+
+    chunk {main} main.js, main.js.map (main) 20.9 kB [initial] [rendered]
+    chunk {polyfills} polyfills.js, polyfills.js.map (polyfills) 141 kB [initial] [rendered]
+    chunk {runtime} runtime.js, runtime.js.map (runtime) 6.15 kB [entry] [rendered]
+    chunk {styles} styles.js, styles.js.map (styles) 9.72 kB [initial] [rendered]
+    chunk {vendor} vendor.js, vendor.js.map (vendor) 3.53 MB [initial] [rendered]
+    Date: 2020-07-23T10:14:57.871Z - Hash: 517926f61ab2675ffabe - Time: 8267ms
+
+    WARNING in Circular dependency detected:
+    src\app\app.component.ts -> src\app\service\web-socket-api.service.ts -> src\app\app.component.ts
+
+    WARNING in Circular dependency detected:
+    src\app\service\web-socket-api.service.ts -> src\app\app.component.ts -> src\app\service\web-socket-api.service.ts
+    ** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+    : Compiled successfully.
+
+-----------------------------------------------------------------------------------------------------
+
+error encountered:
+
+    Uncaught ReferenceError: global is not defined
+        at Object../node_modules/sockjs-client/lib/utils/browser-crypto.js (browser-crypto.js:3)
+        at __webpack_require__ (bootstrap:79)
+        at Object../node_modules/sockjs-client/lib/utils/random.js (random.js:4)
+        at __webpack_require__ (bootstrap:79)
+        at Object../node_modules/sockjs-client/lib/utils/event.js (event.js:3)
+        at __webpack_require__ (bootstrap:79)
+        at Object../node_modules/sockjs-client/lib/transport/websocket.js (websocket.js:3)
+        at __webpack_require__ (bootstrap:79)
+        at Object../node_modules/sockjs-client/lib/transport-list.js (transport-list.js:5)
+        at __webpack_require__ (bootstrap:79)
+
+    solution:
+
+    https://stackoverflow.com/questions/54349858/angular-7-uncaught-referenceerror-global-is-not-defined-when-adding-package
+
+    <script>
+        if (global === undefined) {
+            var global = window;
+        }
+    </script>
+
+-----------------------------------------------------------------------------------------------------
+
+error encountered:
+
+    core.js:6185 ERROR Error: If ngModel is used within a form tag, either the name attribute must be set or the form
+        control must be defined as 'standalone' in ngModelOptions.
+
+        Example 1: <input [(ngModel)]="person.firstName" name="first">
+        Example 2: <input [(ngModel)]="person.firstName" [ngModelOptions]="{standalone: true}">
+        at Function.missingNameException (forms.js:6512)
+        at NgModel._checkName (forms.js:6920)
+        at NgModel._checkForErrors (forms.js:6897)
+        at NgModel.ngOnChanges (forms.js:6795)
+        at NgModel.wrapOnChangesHook_inPreviousChangesStorage (core.js:26853)
+        at callHook (core.js:4690)
+        at callHooks (core.js:4650)
+        at executeInitAndCheckHooks (core.js:4591)
+        at selectIndexInternal (core.js:9621)
+        at Module.ɵɵadvance (core.js:9582)
+
+    solution:
+
+    must have name property on input tag as suggested by the error name="name"
+
+-----------------------------------------------------------------------------------------------------
+
+web browser devtools,
+
+    Connect:
+
+    Initialize WebSocket Connection             web-socket-api.service.ts:37 
+    Opening Web Socket...                                       stomp.js:134
+    Web Socket Opened...                                        stomp.js:134
+    >>> CONNECT                                                 stomp.js:134
+    accept-version:1.1,1.0
+    heart-beat:10000,10000
+    <<< CONNECTED                                               stomp.js:134
+    version:1.1
+    heart-beat:0,0
+    connected to server undefined                               stomp.js:134
+    >>> SUBSCRIBE                                               stomp.js:134
+    id:sub-0
+    destination:/topic/greetings
+
+    Submit:
+
+    calling logout api via web socket           web-socket-api.service.ts:64 
+    >>> SEND                                                    stomp.js:134 
+    destination:/app/hello
+    content-length:5
+
+    "one"
+    <<< MESSAGE                                                 stomp.js:134
+    destination:/topic/greetings
+    content-type:application/json
+    subscription:sub-0
+    message-id:fisrxg2w-1
+    content-length:25
+    
+    {"content":"Hello, one!"}
+    Message Recieved from Server :: MESSAGE     web-socket-api.service.ts:24
+    content-length:25
+    message-id:fisrxg2w-1
+    subscription:sub-0
+    content-type:application/json
+    destination:/topic/greetings
+    content-length:25
+
+    {"content":"Hello, one!"}
+
+    Disconnect:
+    >>> DISCONNECT                                              stomp.js:134
+    Disconnected                                web-socket-api.service.ts:59
+
+

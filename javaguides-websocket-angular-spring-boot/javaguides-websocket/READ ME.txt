@@ -1,0 +1,122 @@
+reference : https://www.javaguides.net/2019/06/spring-boot-angular-8-websocket-example-tutorial.html
+
+----------------------------------------------------------------------------------------------------
+
+1. Creating a Spring Boot Application
+    There are many ways to create a Spring Boot application.
+    You can refer below articles to create a Spring Boot application.
+        >> Create Spring Boot Project With Spring Initializer
+        >> Create Spring Boot Project in Spring Tool Suite [STS]
+----------------------------------------------------------------------------------------------------
+
+2. Project Structure
+    Refer below screenshot to create project or packaging structure:
+
+----------------------------------------------------------------------------------------------------
+
+3. Create a resource representation class
+    We are exchanges message in JSON format over STOMP protocol
+    so let's create two Java classes Greeting and HelloMessage.
+
+    public class HelloMessage {
+        private String name;
+
+        public HelloMessage() {
+        }
+
+
+        public HelloMessage(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public class Greeting {
+        private String content;
+
+        public Greeting() {
+        }
+
+        public Greeting(String content) {
+            this.content = content;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+    }
+
+    Spring will use the Jackson JSON library to automatically marshal instances of type Greeting into JSON.
+
+    Next, you’ll create a controller to receive the hello message and send a greeting message.
+
+----------------------------------------------------------------------------------------------------
+
+4. Create a message-handling controller
+    In Spring’s approach to working with STOMP messaging,
+    STOMP messages can be routed to @Controller classes.
+    For example, the GreetingController is mapped to handle messages to destination "/hello".
+
+    @Controller
+    public class GreetingController {
+        @MessageMapping("/hello")
+        @SendTo("/topic/greetings")
+        public Greeting greeting(HelloMessage message) throws InterruptedException {
+            //simulated delay
+            Thread.sleep(1000);
+            return new Greeting("Hello, "+message.getName()+"!");
+        }
+    }
+
+    The @MessageMapping annotation ensures that if a message is sent to destination "/hello",
+    then the greeting() method is called.
+
+    The payload of the message is bound to a HelloMessage object which is passed into greeting().
+
+----------------------------------------------------------------------------------------------------
+
+5. Configure Spring for STOMP messaging
+    Now that the essential components of the service are created,
+    you can configure Spring to enable WebSocket and STOMP messaging.
+    Create a Java class named WebSocketConfig that looks like this:
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+        //alt+insert
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:4200").withSockJS();
+        }
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry registry) {
+            registry.enableSimpleBroker("/topic");
+            registry.setApplicationDestinationPrefixes("/app");
+        }
+    }
+
+    WebSocketConfig is annotated with @Configuration to indicate that it is a Spring configuration class.
+    The @EnableWebSocketMessageBroker enables WebSocket message handling, backed by a message broker.
+
+    We have handled the CORS issue with the following code:
+
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+             registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:4200").withSockJS();
+        }
+
+    And that’s it for Back-End! Now we need to create Front-End
+    part of the application to start the socket communication.
+
+----------------------------------------------------------------------------------------------------
