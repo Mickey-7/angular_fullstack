@@ -1,0 +1,210 @@
+reference : https://www.callicoder.com/spring-boot-mongodb-angular-js-rest-api-tutorial/
+
+--------------------------------------------------------------------------------------------------------------------
+
+Creating Spring Boot backend
+    1. Bootstrapping the Project
+    We’ll use Spring Initializer web app to generate our spring boot project.
+
+        1.Head over to http://start.spring.io/.
+        2.Enter Artifact’s value as todoapp.
+        3.Add Spring Web and Spring Data MongoDB in the dependencies section.
+        4.Click Generate to generate and download the project.
+
+--------------------------------------------------------------------------------------------------------------------
+
+2. Configuring MongoDB database
+    Spring Boot tries to auto-configure most of the stuff for you
+    based on the dependencies that you have added in the pom.xml file.
+
+    Since we have added spring-boot-starter-mongodb dependency,
+
+    Spring Boot tries to build a connection with MongoDB by reading
+    the database configuration from application.properties file.
+
+        # MONGODB (MongoProperties)
+        spring.data.mongodb.uri=mongodb://localhost:27017/todoapp
+
+    Note that, for the above configuration to work,
+    you need to have MongoDB installed in your system.
+
+
+    Start a mongo server instance
+
+    C:\Users\donat>docker run -it --name some-mongo -d mongo:4.2.5
+    8c6e23f9ba56410aae3debf73ba0f7d1e64a57a5d1ca684136be73af51794187
+
+--------------------------------------------------------------------------------------------------------------------
+
+3. Creating the Todo model
+    Let’s now create the Todo model which will be mapped to a Document in the mongodb database.
+
+    Create a new package models inside com.example.todoapp,
+    and add a file Todo.java inside models package with the following contents -
+
+    @Document(collection = "todos")
+    @JsonIgnoreProperties(value = {"createdAt"}, allowGetters = true)
+    public class Todo {
+        @Id
+        private String id;
+
+        @Indexed(unique = true)
+        private String title;
+
+        private Boolean completed = false;
+
+        private Date createAt = new Date();
+
+        public Todo() {
+        }
+
+        public Todo(String title, Boolean completed, Date createAt) {
+            this.title = title;
+            this.completed = completed;
+            this.createAt = createAt;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public Boolean getCompleted() {
+            return completed;
+        }
+
+        public void setCompleted(Boolean completed) {
+            this.completed = completed;
+        }
+
+        public Date getCreateAt() {
+            return createAt;
+        }
+
+        public void setCreateAt(Date createAt) {
+            this.createAt = createAt;
+        }
+
+        @Override
+        public String toString() {
+            return "Todo{" +
+                    "id='" + id + '\'' +
+                    ", title='" + title + '\'' +
+                    ", completed=" + completed +
+                    ", createAt=" + createAt +
+                    '}';
+        }
+    }
+
+    We have annotated title with @Indexed annotation and marked it as unique.
+    This creates a unique index on title field.
+
+    Also, We make sure that the todo’s title is not blank by annotating it with @NotBlank annotation.
+
+    The @JsonIgnoreProperties annotation is used to ignore createdAt field during deserialization.
+    We don’t want clients to send the createdAt value.
+    If they send a value for this field, we’ll simply ignore it.
+
+--------------------------------------------------------------------------------------------------------------------
+
+4. Creating TodoRepository for accessing the database
+    Next, we need to create TodoRepository for accessing data from the database.
+
+    First, create a new package repositories inside com.example.todoapp.
+
+    Then, create an interface named TodoRepository inside repositories package with the following contents -
+
+    @Repository
+    public interface TodoRepository extends MongoRepository<Todo,String> {
+    }
+
+    We’ve extended TodoRepository with MongoRepository interface provided by spring-data-mongodb.
+
+    The MongoRepository interface defines methods for all the CRUD operations
+    on the Document like finAll(), fineOne(), save(), delete() etc.
+
+    Spring Boot automatically plugs in an implementation of MongoRepository interface
+    called SimpleMongoRepository at runtime. So, All of the CRUD methods defined by
+    MongoRepository are readily available to you without doing anything.
+
+    You can check out all the methods available for use from SimpleMongoRepository’s documentation.
+
+--------------------------------------------------------------------------------------------------------------------
+
+5. Creating the APIs - TodoController
+    Finally, let’s create the APIs which will be exposed to the clients.
+
+    Create a new package controllers inside com.example.todoapp and add a file
+    TodoController.java inside controllers package with the following code -
+
+    @RestController
+    @RequestMapping("/api")
+    @CrossOrigin(origins = "*")
+    public class TodoController {
+        @Autowired
+        private TodoRepository todoRepository;
+
+        @GetMapping
+        public List<Todo> getAllTodos(){
+    //        Sort sortByCreatedAtDesc = new Sort(Sort.Direction.DESC, "createAt");
+    //        return todoRepository.findAll(sortByCreatedAtDesc);
+            return todoRepository.findAll();
+        }
+
+        @PostMapping
+        public Todo createTodo(@RequestBody Todo todo){
+            todo.setCompleted(false);
+            return todoRepository.save(todo);
+        }
+
+        @GetMapping("/getById/{id}")
+        public ResponseEntity<Todo> getTodoById(@PathVariable String id){
+            return todoRepository.findById(id)
+                    .map(todo -> ResponseEntity.ok().body(todo))
+                    .orElse(ResponseEntity.notFound().build());
+        }
+
+        @PutMapping("/update/{id}")
+        public ResponseEntity<Todo> updateTodo(@PathVariable String id, @RequestBody Todo todo){
+            return todoRepository.findById(id)
+                    .map( selectedTodo -> {
+                        selectedTodo.setTitle(todo.getTitle());
+                        selectedTodo.setCompleted(todo.getCompleted());
+                        Todo updatedTodo = todoRepository.save(selectedTodo);
+                        return ResponseEntity.ok().body(updatedTodo);
+                    }).orElse(ResponseEntity.notFound().build());
+        }
+
+        @DeleteMapping("/delete/{id}")
+        public ResponseEntity<?> deleteTodo(@PathVariable String id){
+            return todoRepository.findById(id)
+                    .map(todo -> {
+                        todoRepository.deleteById(id);
+                        return ResponseEntity.ok().build();
+                    }).orElse(ResponseEntity.notFound().build());
+        }
+
+    }
+
+    The @CrossOrigin annotation in the above controller is used to enable Cross-Origin requests.
+    This is required because we’ll be accessing the apis from angular’s frontend server.
+
+    All right! Our backend work is complete now. You can run the app using -
+
+    The app will start on port 8080.
+    You can test the backend apis using postman or any other rest client of your choice.
+
+    Test it using Postman
+
+--------------------------------------------------------------------------------------------------------------------

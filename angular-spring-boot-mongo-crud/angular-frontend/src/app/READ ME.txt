@@ -1,0 +1,262 @@
+reference : https://www.callicoder.com/spring-boot-mongodb-angular-js-rest-api-tutorial/
+
+---------------------------------------------------------------------------------------------------
+
+Creating the Angular Front-end
+
+    Generate the needed below:
+
+    npx ng g cl domain/Todo
+
+    npx ng g c component/TodoList 
+
+    npx ng g s service/TodoService
+
+---------------------------------------------------------------------------------------------------
+
+Create Todo class todo.ts
+    Before defining the TodoListComponent, let’s define a Todo class for working with Todos. 
+    create a new file todo.ts inside src/app folder and add the following code to it -
+
+    export class Todo {
+        id: string;
+        title: string;
+        completed: boolean;
+        createdAt: Date;
+    }
+
+---------------------------------------------------------------------------------------------------
+
+Just import TodoListComponent and add it to declarations array inside @NgModule -
+
+    // manually imported
+    // snippet : import s
+    import { FormsModule } from "@angular/forms";
+    import { HttpClientModule } from "@angular/common/http";
+
+    @NgModule({
+        imports: [
+                ....
+                // manually added
+                FormsModule,
+                HttpClientModule,
+        ],
+    })
+
+    Note that, I have also added FormsModule and HttpModule inside app.module.ts because 
+    we’ll need them for handling form-binding and calling the rest APIs respectively.
+
+---------------------------------------------------------------------------------------------------
+
+Create TodoService todo.service.ts
+    The TodoService will be used to get the data from backend by calling spring boot apis. 
+    Create a new file todo.service.ts inside src/app directory and add the following code to it -
+
+    export class TodoServiceService {
+        private baseUrl = "http://localhost:8080";
+
+        constructor(private http: HttpClient) {}
+
+        private handleError(error: any): Promise<any> {
+            console.log("some error occured ", error);
+            return Promise.reject(error.message || error);
+        }
+
+        getTodos(): Promise<Todo[]> {
+            return this.http
+            .get(this.baseUrl + "/api")
+            .toPromise()
+            .catch(this.handleError);
+        }
+
+        createTodo(todoData: Todo): Promise<Todo> {
+            return this.http
+            .post(this.baseUrl + "/api", todoData)
+            .toPromise()
+            .catch(this.handleError);
+        }
+
+        updateTodo(todoData: Todo): Promise<Todo> {
+            return this.http
+            .put(this.baseUrl + "/api/update/" + todoData.id, todoData)
+            .toPromise()
+            .catch(this.handleError);
+        }
+
+        deleteTodo(id: string): Promise<any> {
+            return this.http
+            .delete(this.baseUrl + "/api/delete/" + id)
+            .toPromise()
+            .catch(this.handleError);
+        }
+    }
+
+---------------------------------------------------------------------------------------------------
+
+Implement TodoListComponent methods
+    Finally, We’ll implement methods for creating, retrieving, 
+    updating and deleting todos in our TodoListComponent.
+
+    Make sure that your todo-list.component.ts file matches with the following -
+
+    export class TodoListComponent implements OnInit {
+        todos: Todo[];
+        newTodo: Todo = new Todo();
+        editing: boolean = false;
+        editingTodo: Todo = new Todo();
+
+        constructor(private todoService: TodoServiceService) {}
+
+        ngOnInit(): void {
+            this.getTodos();
+        }
+
+        getTodos(): void {
+            this.todoService.getTodos().then((todos) => (this.todos = todos));
+        }
+
+        // note: we use NgForm type for the input todoForm
+        createTodo(todoForm: NgForm): void {
+            this.todoService.createTodo(this.newTodo).then((createTodo) => {
+            todoForm.reset();
+            this.newTodo = new Todo();
+            this.todos.unshift(createTodo);
+            });
+        }
+
+        deleteTodo(id: string): void {
+            this.todoService.deleteTodo(id).then(() => {
+            this.todos = this.todos.filter((todo) => todo.id != id);
+            });
+        }
+
+        clearEditing(): void {
+            this.editingTodo = new Todo();
+            this.editing = false;
+        }
+
+        updateTodo(todoData: Todo): void {
+            console.log(todoData);
+            this.todoService.updateTodo(todoData).then((updatedTodo) => {
+            let existingTodo = this.todos.find((todo) => todo.id === updatedTodo.id);
+            Object.assign(existingTodo, updatedTodo);
+            this.clearEditing();
+            });
+        }
+
+        toggleCompleted(todoData: Todo): void {
+            todoData.completed = !todoData.completed;
+            this.todoService.updateTodo(todoData).then((updatedTodo) => {
+            let existingTodo = this.todos.find((todo) => todo.id === updatedTodo.id);
+            Object.assign(existingTodo, updatedTodo);
+            });
+        }
+
+        editTodo(todoData: Todo): void {
+            this.editing = true;
+            Object.assign(this.editingTodo, todoData);
+        }
+    }
+
+---------------------------------------------------------------------------------------------------
+
+Change template for AppComponent (app.component.html)
+    The template for the default welcome page that you see is defined in app.component.html. 
+    Remove everything in this file and add the following code -
+
+        <main><app-todo-list></app-todo-list></main>
+
+    The <app-todo-list> tag will be used to display the TodoList component in this page. 
+
+---------------------------------------------------------------------------------------------------
+
+Create template for TodoListComponent todo-list.component.html
+    Next, we’re gonna define the template for TodoListComponent. 
+    Create a new file todo-list.component.html inside src/app directory and add the following code to it -
+
+    <p>todo-list works!</p>
+
+    <h3>My Todos</h3>
+
+    <!-- note : we implement the ngForm for todoForm input -->
+    <form #todoForm="ngForm" (ngSubmit)="createTodo(todoForm)">
+        <!-- snippet : a-ngMo -->
+        <!-- #title="ngModel"  is needed for div below -->
+        <input
+            [(ngModel)]="newTodo.title"
+            #title="ngModel"
+            name="title"
+            required
+            type="text"
+            placeholder="Type a todo and press enter..."
+        />
+
+        <div *ngIf="title.errors && title.dirty">
+            <!-- snippet : a-ngI -->
+            <div [hidden]="!title.errors.required">
+            Title is required.
+            </div>
+        </div>
+    </form>
+
+    <ul>
+        <li *ngFor="let todo of todos">
+            <!-- snippet : a-ngF -->
+            <div *ngIf="!editing || editingTodo.id != todo.id">
+            <a (click)="toggleCompleted(todo)">
+                <i style="padding-right: 20px;">click to complete</i>
+            </a>
+            <span>
+                {{ todo.title }}
+            </span>
+            <span>
+                <a (click)="editTodo(todo)">
+                <i style="padding-left: 20px;">edit</i>
+                </a>
+                <a (click)="deleteTodo(todo.id)">
+                <i style="padding-left: 20px;">clear</i>
+                </a>
+            </span>
+            </div>
+
+            <!-- will be displayed when edit is clicked -->
+            <div *ngIf="editing && editingTodo.id === todo.id">
+            <input [(ngModel)]="editingTodo.title" required type="text" />
+            <span>
+                <a (click)="updateTodo(editingTodo)">
+                <i style="padding-left: 20px;">done</i>
+                </a>
+                <a (click)="clearEditing()">
+                <i style="padding-left: 20px;">clear</i>
+                </a>
+            </span>
+            </div>
+        </li>
+    </ul>
+
+    <!-- will appear if no todo -->
+    <div *ngIf="todos && todos.length == 0">
+        <!-- snippet : a-ngI -->
+        <p>No Todos Found</p>
+    </div>
+
+    The template contains code to display a list of todos and call methods 
+    for editing a todo, deleting a todo, and marking a todo as complete.
+
+---------------------------------------------------------------------------------------------------
+
+error encountered:
+
+    ERROR Error: Uncaught (in promise):                     core.js:6185 
+    Http failure response for http://localhost:8080/api/
+    update5f1d0517cf6b4e321fab868f: 0 Unknown Error
+
+
+    solution:
+
+    no / on service after update
+
+        from:      .put(this.baseUrl + "/api/update/" + todoData.id, todoData)
+        to:        .put(this.baseUrl + "/api/update/" + todoData.id, todoData)
+
+---------------------------------------------------------------------------------------------------

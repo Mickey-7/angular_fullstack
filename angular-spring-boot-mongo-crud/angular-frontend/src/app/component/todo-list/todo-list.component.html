@@ -1,0 +1,65 @@
+<p>todo-list works!</p>
+
+<h3>My Todos</h3>
+
+<!-- note : we implement the ngForm for todoForm input -->
+<form #todoForm="ngForm" (ngSubmit)="createTodo(todoForm)">
+  <!-- snippet : a-ngMo -->
+  <!-- #title="ngModel"  is needed for div below -->
+  <input
+    [(ngModel)]="newTodo.title"
+    #title="ngModel"
+    name="title"
+    required
+    type="text"
+    placeholder="Type a todo and press enter..."
+  />
+
+  <div *ngIf="title.errors && title.dirty">
+    <!-- snippet : a-ngI -->
+    <div [hidden]="!title.errors.required">
+      Title is required.
+    </div>
+  </div>
+</form>
+
+<ul>
+  <li *ngFor="let todo of todos">
+    <!-- snippet : a-ngF -->
+    <div *ngIf="!editing || editingTodo.id != todo.id">
+      <a (click)="toggleCompleted(todo)">
+        <i style="padding-right: 20px;">click to complete</i>
+      </a>
+      <span>
+        {{ todo.title }}
+      </span>
+      <span>
+        <a (click)="editTodo(todo)">
+          <i style="padding-left: 20px;">edit</i>
+        </a>
+        <a (click)="deleteTodo(todo.id)">
+          <i style="padding-left: 20px;">clear</i>
+        </a>
+      </span>
+    </div>
+
+    <!-- will be displayed when edit is clicked -->
+    <div *ngIf="editing && editingTodo.id === todo.id">
+      <input [(ngModel)]="editingTodo.title" required type="text" />
+      <span>
+        <a (click)="updateTodo(editingTodo)">
+          <i style="padding-left: 20px;">done</i>
+        </a>
+        <a (click)="clearEditing()">
+          <i style="padding-left: 20px;">clear</i>
+        </a>
+      </span>
+    </div>
+  </li>
+</ul>
+
+<!-- will appear if no todo -->
+<div *ngIf="todos && todos.length == 0">
+  <!-- snippet : a-ngI -->
+  <p>No Todos Found</p>
+</div>
