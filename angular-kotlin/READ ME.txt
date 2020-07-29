@@ -1,0 +1,6 @@
+reference : https://github.com/Mickey-7/angular_fullstack/tree/master/angular-spring-boot-integration-no-cors-needed
+
+------------------------------------------------------------------------------------------------------------------------
+
+    same steps with the integration of Angular & Java - Spring Boot for Angular & Kotlin - Spring Boot
+
